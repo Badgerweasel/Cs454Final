@@ -9,21 +9,46 @@ public class FinalProject {
 	
 	FinalProject(int size, int length)
 	{
-		M = new int[size][size][length][2*length];
-		dfa = new int[size][2];
+		//M = new int[size][size][length][2*length];
+		
+		//dfa = new int[size][2];
 		
 		DfaBuilder temp = new DfaBuilder(size);
 		
-		dfa = temp.getDFA();
-		this.size = size;
-		this.length = length;
-		accepting = temp.getAccepting();
+		//dfa = temp.getDFA();
+		//this.size = size;
+		//this.length = length;
+		//accepting = temp.getAccepting();
+		dfa = new int[2][2];
+		dfa[0][0] = 0;
+		dfa[0][1] = 1;
+		dfa[1][0] = 1;
+		dfa[1][1] = 0;
+		accepting = new boolean[2];
+		accepting[0] = true;
+		accepting[1] = false;
+		this.size = 2;
+		this.length = 3;
+		M = new int[this.size][this.size][this.length][2*this.length];
 	}
 	
 	public void run()
 	{
 		populateM();
-		
+		for(int i = 0; i < M.length; i++)
+		{
+			for(int j = 0; j < M[i].length; j++)
+			{
+				for(int p = 0; p < M[i][j].length; p++)
+				{
+					for(int q = 0; q < M[i][j][p].length - 1; q++)
+					{
+						System.out.println(M[i][j][p][q]);
+					}
+
+				}
+			}
+		}
 		BigInteger a = sum();
 		System.out.println(a.toString());
 	}
@@ -60,11 +85,7 @@ public class FinalProject {
 			{
 				for(int p = 2; p < M[i][j].length; p++)
 				{
-					for(int q = M[i][j].length; q < M[i][j][p].length - 1; q++)
-					{
-						M[i][j][p][q] = M[dfa[i][0]][j][p-1][q+1] + M[dfa[i][1]][j][p-1][q-1];
-					}
-					for(int q = M[i][j].length; q > 0; q--)
+					for(int q = 1; q < M[i][j][p].length - 1; q++)
 					{
 						M[i][j][p][q] = M[dfa[i][0]][j][p-1][q+1] + M[dfa[i][1]][j][p-1][q-1];
 					}
