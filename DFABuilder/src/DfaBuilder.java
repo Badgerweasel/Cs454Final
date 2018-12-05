@@ -103,6 +103,15 @@ public class DfaBuilder {
 		return max;
 	}
 	
+	public int[][] getDFA()
+	{
+		return DFA;
+	}
+	
+	public boolean[] getAccepting()
+	{
+		return accepting;
+	}
 	public String toString()
 	{
 		String DfaString = "";

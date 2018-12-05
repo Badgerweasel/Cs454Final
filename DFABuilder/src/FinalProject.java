@@ -77,19 +77,26 @@ public class FinalProject {
 	{
 		BigInteger sum = new BigInteger("0");
 		int field1 = 0;
+		int field2 = 0;
 		for(int i = 0; i < M[0].length; i++)
 		{
 			for(int k = 0; k < M[0][i].length; k++)
 			{
-				for(int q = length + 1; q < M[0][i][k].length; q++)
+				for(int q = 0; q < M[0][i][k].length; q++)
 				{
-					if(accepting[i])
+					if(accepting[i] && q > length)
 					{
 						field1 += M[0][i][k][q];
+					}
+					else if(!accepting[i] && q < length)
+					{
+						field2 += M[0][i][k][q];
 					}
 				}
 			}
 		}
+		
+		
 		return sum;
 	}
 }
