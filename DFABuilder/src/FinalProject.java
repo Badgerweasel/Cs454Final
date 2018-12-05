@@ -78,6 +78,9 @@ public class FinalProject {
 		BigInteger sum = new BigInteger("0");
 		int field1 = 0;
 		int field2 = 0;
+		int field3 = 0;
+		int field4 = 0;
+		
 		for(int i = 0; i < M[0].length; i++)
 		{
 			for(int k = 0; k < M[0][i].length; k++)
@@ -92,11 +95,23 @@ public class FinalProject {
 					{
 						field2 += M[0][i][k][q];
 					}
+					else if(accepting[i] && q == length)
+					{
+						field3 += M[dfa[0][1]][i][k][q];
+					}
+					else if(!accepting[i] && q == length)
+					{
+						field4 += M[dfa[0][0]][i][k][q];
+					}
 				}
 			}
 		}
+		System.out.println("field1: " + field1 + "\nfield2: " + field2 + "\nfield3: " + field3 + "\nfield4: " + field4);
 		
-		
+		sum = sum.add(new BigInteger(String.valueOf(field1)));
+		sum = sum.add(new BigInteger(String.valueOf(field2)));
+		sum = sum.add(new BigInteger(String.valueOf(field3)));
+		sum = sum.add(new BigInteger(String.valueOf(field4)));
 		return sum;
 	}
 }
