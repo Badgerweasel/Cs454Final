@@ -20,46 +20,57 @@ public class FinalProject {
 		//this.size = size;
 		//this.length = length;
 		//accepting = temp.getAccepting();
-		dfa = new int[2][2];
-		dfa[0][0] = 0;
-		dfa[0][1] = 1;
-		dfa[1][0] = 1;
-		dfa[1][1] = 0;
-		accepting = new boolean[2];
-		accepting[0] = true;
-		accepting[1] = false;
+		dfa = new int[2][2]; //[number of states] [number of inputs]
+		dfa[0][0] = 0; //State 0, input 0, =0 so go to state 0.
+		dfa[0][1] = 1; //State 0, input 1, =1 so go to state 1.
+		dfa[1][0] = 1; //State 1, input 0, =1 so go to state 1.
+		dfa[1][1] = 0; //State 1, input 1, =0 so go to state 0.
+		accepting = new boolean[2]; //Value of 2 since that is our total number of states. 
+		accepting[0] = true; //State 0 is accepting.
+		accepting[1] = false; //State 1 is not accepting. 
 		this.size = 2;
 		this.length = 3;
-		M = new int[this.size][this.size][this.length][2*this.length];
+		M = new int[this.size][this.size][this.length][2*this.length]; //[2 states: 0,1] [2 possible inputs: {0,1}] [???] [???]
 	}
 	
 	public void run()
 	{
+		System.out.println("-----------Populating M---------------");
 		populateM();
+		System.out.println("--------------Done populating M, now computing the sum() for \'a\'--------------");
 		BigInteger a = sum();
+		System.out.println("---------------\'a\' completed sum, now running print2D--------------");
 		print2D();
+		System.out.println("-----------Done running print2D. Now printing a.toString-------------------");
 		System.out.println(a.toString());
+		System.out.println("------------Done printing a.toString. Now mutating--------------------");
 		
 		mutate();
+		System.out.println("--------------Mutation Complete, now running printDFA(dfa, accepting)-----------------");
 		System.out.println(printDFA(dfa, accepting));
+		System.out.println("-------------Done running printDFA, program complete.----------------");
 	}
 	
 	protected void populateM()
 	{
-		
+		//States of M
 		for(int i = 0; i < M.length; i++)
 		{
+			//Possible inputs of M
 			for(int j = 0; j < M[i].length; j++)
 			{
 				M[i][j][1][length] = 0;
+				
+				//If state i (state from the input DFA), input 1 = j (j=input), we set transition to state 1. 
 				if(dfa[i][1] == j)
 				{
 					M[i][j][1][length + 1] = 1;
 				}
-				else
+				else //Otherwise its transition goes to state 0. 
 				{
 					M[i][j][1][length + 1] = 0;
 				}
+				//Repeat for other input. 
 				if(dfa[i][0] == j)
 				{
 					M[i][j][1][length - 1] = 1;
@@ -70,8 +81,9 @@ public class FinalProject {
 				
 			}
 		}
+		System.out.println("--------------Printing current M------------");
 		print2D();
-		
+		System.out.println("--------------Done Printing current M------------");
 		for(int i = 0; i < M.length; i++)
 		{
 			for(int j = 0; j < M[i].length; j++)
@@ -80,7 +92,7 @@ public class FinalProject {
 				{
 					for(int q = M[i][j].length - p; q < M[i][j].length + p; q++)
 					{
-						M[i][j][p][q] = M[dfa[i][0]][j][p-1][q+1] + M[dfa[i][1]][j][p-1][q-1];
+						M[i][j][p][q] = M[ dfa[i][0] ][j][p-1][q+1] + M[ dfa[i][1] ][j][p-1][q-1];
 					}
 				}
 			}
@@ -92,18 +104,22 @@ public class FinalProject {
 	protected BigInteger sum()
 	{
 		BigInteger sum = new BigInteger("0");
-		int field1 = 0;
-		int field2 = 0;
-		int field3 = 0;
-		int field4 = 0;
+		int field1 = 0; //State: 0, Input: 0
+		int field2 = 0; //State: 0, Input: 1
+		int field3 = 0; //State: 1, Input: 0
+		int field4 = 0; //State: 1, Input: 1
 		
+		//For each input.
 		for(int j = 0; j < M[0].length; j++)
 		{
+			//For each k value (k=p)
 			for(int k = 0; k < M[0][j].length; k++)
 			{
+				//For each q value
 				for(int q = 0; q < M[0][j][k].length; q++)
 				{
-					if(accepting[j] && q < M[0][j].length && q > 0)
+					if(accepting[j] && q < M[0][j].length && q > 0) //Its a bit dangerous to run accepting[input] when accepting is based on States!
+																	//(it just so happens #states (0,1) = #inputs {0,1}
 					{
 						field1 += M[0][j][k][q];
 					}
@@ -128,6 +144,8 @@ public class FinalProject {
 		sum = sum.add(new BigInteger(String.valueOf(field2)));
 		sum = sum.add(new BigInteger(String.valueOf(field3)));
 		sum = sum.add(new BigInteger(String.valueOf(field4)));
+		
+		//Sum is merely the total amount of accepting states from the accepting DFA.
 		return sum;
 	}
 	
@@ -183,22 +201,33 @@ public class FinalProject {
 	
 	public void print2D()
 	{
+		//For each State, we print out its respective M
 		for(int i = 0; i < M.length; i++)
 		{
+			System.out.println("Current State: " + i);
+			
 			System.out.println("{");
+			
+			//For each possible input.
 			for(int j = 0; j < M[i].length; j++)
 			{
+				System.out.println("Current Input: " + j);
+				
 				System.out.print("[");
+				
+				//For each p val???
 				for(int p = 0; p < M[i][j].length; p++)
 				{
 					System.out.print("(");
+					
+					//For each q val???
 					for(int q = 0; q < M[i][j].length * 2; q++)
 					{
 						System.out.print(M[i][j][p][q] + ", ");
 					}
 					System.out.print("), ");
 				}
-				System.out.print("], ");
+				System.out.print("],\n");
 			}
 			System.out.println("}\n");
 		}
