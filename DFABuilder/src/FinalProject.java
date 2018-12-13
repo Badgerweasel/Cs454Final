@@ -7,6 +7,8 @@ public class FinalProject {
 	boolean[] accepting;
 	int size;
 	int length;
+	BigInteger score;
+	boolean changed;
 	
 	FinalProject(int size, int length)
 	{
@@ -38,11 +40,11 @@ public class FinalProject {
 		System.out.println("-----------Populating M---------------");
 		populateM();
 		System.out.println("--------------Done populating M, now computing the sum() for \'a\'--------------");
-		BigInteger a = sum();
+		score = sum();
 		System.out.println("---------------\'a\' completed sum, now running print2D--------------");
 		print2D();
 		System.out.println("-----------Done running print2D. Now printing a.toString-------------------");
-		System.out.println(a.toString());
+		System.out.println(score.toString());
 		System.out.println("------------Done printing a.toString. Now mutating--------------------");
 		
 		mutate();
@@ -109,7 +111,7 @@ public class FinalProject {
 		int field3 = 0; //State: 1, Input: 0
 		int field4 = 0; //State: 1, Input: 1
 		
-		//For each input.
+		//For each s.
 		for(int j = 0; j < M[0].length; j++)
 		{
 			//For each k value (k=p)
@@ -118,12 +120,12 @@ public class FinalProject {
 				//For each q value
 				for(int q = 0; q < M[0][j][k].length; q++)
 				{
-					if(accepting[j] && q < M[0][j].length && q > 0) //Its a bit dangerous to run accepting[input] when accepting is based on States!
+					if(accepting[j] && q > M[0][j].length) //Its a bit dangerous to run accepting[input] when accepting is based on States!
 																	//(it just so happens #states (0,1) = #inputs {0,1}
 					{
 						field1 += M[0][j][k][q];
 					}
-					else if(!accepting[j] && q > M[0][j].length)
+					else if(!accepting[j] && q < M[0][j].length && q > 0)
 					{
 						field2 += M[0][j][k][q];
 					}
@@ -164,6 +166,105 @@ public class FinalProject {
 			}
 		}
 		//create accepting states
+		for(int j = 0; j < children.size(); j++) {
+			int addOrRemove = (int)(Math.random() * 3);
+			
+			if(addOrRemove == 0) //add accepting state
+			{
+				childAccepting.add(new boolean[accepting.length]);
+				ArrayList<Integer> addsPossible = new ArrayList<Integer>();
+				ArrayList<Integer> acceptingStates = new ArrayList<Integer>();
+				for(int i = 0; i < accepting.length; i++)
+				{
+					if(accepting[i])
+					{
+						childAccepting.get(childAccepting.size() - 1)[i] = true;
+						acceptingStates.add(i);
+					}
+					else
+					{
+						addsPossible.add(i);
+					}
+				}
+				//Check if we can add a new accepting state and still have a fail state
+				if(addsPossible.size() > 1)
+				{
+					childAccepting.get(childAccepting.size() - 1)[addsPossible.get((int)(Math.random() * addsPossible.size()))] = true;
+				}
+				else
+				{
+					childAccepting.get(childAccepting.size() - 1)[addsPossible.get(0)] = true;
+					childAccepting.get(childAccepting.size() - 1)[acceptingStates.get((int)(Math.random() * acceptingStates.size()))] = false;
+				}
+			}
+			else if(addOrRemove == 1) //remove accepting state
+			{
+				childAccepting.add(new boolean[accepting.length]);
+				ArrayList<Integer> removePossible = new ArrayList<Integer>();
+				for(int i = 0; i < accepting.length; i++)
+				{
+					if(accepting[i])
+					{
+						childAccepting.get(childAccepting.size() - 1)[i] = true;
+						removePossible.add(i);
+					}
+				}
+				//Check if we can add a new accepting state and still have a fail state
+				if(removePossible.size() > 1)
+				{
+					childAccepting.get(childAccepting.size() - 1)[removePossible.get((int)(Math.random() * removePossible.size()))] = false;
+				}
+			}
+			else
+			{
+				childAccepting.add(new boolean[accepting.length]);
+				for(int i = 0; i < accepting.length; i++)
+				{
+					if(accepting[i])
+					{
+						childAccepting.get(childAccepting.size() - 1)[i] = true;
+					}
+				}
+			}
+			
+			
+		}
+		
+		int[][] tempDfa = copy();
+		boolean[] tempAccepting = new boolean[accepting.length];
+		for(int i = 0; i < accepting.length; i++)
+		{
+			if(accepting[i])
+			{
+				tempAccepting[i] = true;
+			}
+		}
+
+		for(int i = 0; i < children.size(); i++)
+		{
+			dfa = children.get(i);
+			accepting = childAccepting.get(i);
+			populateM();
+			BigInteger a = sum();
+			if(a.compareTo(score) ==  1)
+			{
+				tempDfa = copy();
+				tempAccepting = new boolean[accepting.length];
+				for(int j = 0; j < accepting.length; j++)
+				{
+					if(accepting[j])
+					{
+						tempAccepting[j] = true;
+					}
+				}
+			}
+		}
+		
+		for(int i = 0; i < children.size(); i++)
+		{
+			System.out.println(printDFA(children.get(i), childAccepting.get(i)));
+		}
+		/*
 		for(int i = 0; i < accepting.length * 2; i ++)
 		{
 			childAccepting.add(new boolean[accepting.length]);
@@ -182,7 +283,7 @@ public class FinalProject {
 		{
 			System.out.println(printDFA(children.get(i), childAccepting.get(i)));
 		}
-		
+		*/
 	}
 	
 	protected int[][] copy()
