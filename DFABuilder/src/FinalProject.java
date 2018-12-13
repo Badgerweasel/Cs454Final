@@ -359,4 +359,17 @@ public class FinalProject {
 		
 		return DfaString;
 	}
+	
+
+	public BigInteger GetNumberOfPermutations(int stringSize) {
+		BigInteger big1, big2, bigComplete;
+		big1 = new BigInteger("2");
+		big2 = new BigInteger("0");
+		bigComplete = new BigInteger("0");
+		for (int i=stringSize; i>0;i--) {
+			big2 = big1.pow(i);
+			bigComplete = bigComplete.add(big2);
+		}
+		return bigComplete;
+	}
 }
