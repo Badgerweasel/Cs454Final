@@ -41,13 +41,17 @@ public class FinalProject {
 		populateM();
 		System.out.println("--------------Done populating M, now computing the sum() for \'a\'--------------");
 		score = sum();
+		changed = true;
 		System.out.println("---------------\'a\' completed sum, now running print2D--------------");
 		print2D();
 		System.out.println("-----------Done running print2D. Now printing a.toString-------------------");
 		System.out.println(score.toString());
 		System.out.println("------------Done printing a.toString. Now mutating--------------------");
-		
-		mutate();
+		while(changed)
+		{
+			changed = false;
+			mutate();
+		}
 		System.out.println("--------------Mutation Complete, now running printDFA(dfa, accepting)-----------------");
 		System.out.println(printDFA(dfa, accepting));
 		System.out.println("-------------Done running printDFA, program complete.----------------");
@@ -231,14 +235,7 @@ public class FinalProject {
 		}
 		
 		int[][] tempDfa = copy();
-		boolean[] tempAccepting = new boolean[accepting.length];
-		for(int i = 0; i < accepting.length; i++)
-		{
-			if(accepting[i])
-			{
-				tempAccepting[i] = true;
-			}
-		}
+		boolean[] tempAccepting = copyAccepting(accepting);
 
 		for(int i = 0; i < children.size(); i++)
 		{
@@ -249,16 +246,14 @@ public class FinalProject {
 			if(a.compareTo(score) ==  1)
 			{
 				tempDfa = copy();
-				tempAccepting = new boolean[accepting.length];
-				for(int j = 0; j < accepting.length; j++)
-				{
-					if(accepting[j])
-					{
-						tempAccepting[j] = true;
-					}
-				}
+				tempAccepting = copyAccepting(accepting);
+				score = a;
+				changed = true;
 			}
 		}
+		
+		dfa = copy(tempDfa);
+		accepting = copyAccepting(tempAccepting);
 		
 		for(int i = 0; i < children.size(); i++)
 		{
@@ -298,6 +293,34 @@ public class FinalProject {
 			}
 		}
 		return tempdfa;
+	}
+	
+	protected int[][] copy(int[][] c)
+	{
+		int[][] tempdfa = new int[c.length][c[0].length];
+		
+		for(int i = 0; i < c.length; i++)
+		{
+			for(int j = 0; j < c[i].length; j++)
+			{
+				tempdfa[i][j] = c[i][j];
+			}
+		}
+		return tempdfa;
+	}
+	
+	protected boolean[] copyAccepting(boolean[] a)
+	{
+		boolean[] temp = new boolean[a.length];
+		for(int i = 0; i < a.length; i++)
+		{
+			if(a[i])
+			{
+				temp[i] = true;
+			}
+		}
+		
+		return temp;
 	}
 	
 	public void print2D()
