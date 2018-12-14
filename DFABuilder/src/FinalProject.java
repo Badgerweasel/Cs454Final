@@ -12,16 +12,17 @@ public class FinalProject {
 	
 	FinalProject(int size, int length)
 	{
-		//M = new int[size][size][length][2*length];
+		M = new int[size][size][length][2*length];
 		
-		//dfa = new int[size][2];
+		dfa = new int[size][2];
 		
 		DfaBuilder temp = new DfaBuilder(size);
 		
-		//dfa = temp.getDFA();
-		//this.size = size;
-		//this.length = length;
-		//accepting = temp.getAccepting();
+		dfa = temp.getDFA();
+		this.size = size;
+		this.length = length;
+		accepting = temp.getAccepting();
+		/*
 		dfa = new int[2][2]; //[number of states] [number of inputs]
 		dfa[0][0] = 0; //State 0, input 0, =0 so go to state 0.
 		dfa[0][1] = 1; //State 0, input 1, =1 so go to state 1.
@@ -32,7 +33,8 @@ public class FinalProject {
 		accepting[1] = false; //State 1 is not accepting. 
 		this.size = 2;
 		this.length = 3;
-		M = new int[this.size][this.size][this.length][2*this.length]; //[2 states: 0,1] [2 possible inputs: {0,1}] [???] [???]
+		*/
+		//M = new int[this.size][this.size][this.length][2*this.length]; //[2 states: 0,1] [2 possible inputs: {0,1}] [???] [???]
 	}
 	
 	public void run()
@@ -54,6 +56,7 @@ public class FinalProject {
 		}
 		System.out.println("--------------Mutation Complete, now running printDFA(dfa, accepting)-----------------");
 		System.out.println(printDFA(dfa, accepting));
+		System.out.println("Percent correct " + (score.floatValue()/(GetNumberOfPermutations(length)).floatValue()) * 100 + "%");
 		System.out.println("-------------Done running printDFA, program complete.----------------");
 	}
 	
@@ -67,16 +70,16 @@ public class FinalProject {
 			{
 				M[i][j][1][length] = 0;
 				
-				//If state i (state from the input DFA), input 1 = j (j=input), we set transition to state 1. 
+				//If state i transitions to j on a 1 then we add 1 to q = 1
 				if(dfa[i][1] == j)
 				{
 					M[i][j][1][length + 1] = 1;
 				}
-				else //Otherwise its transition goes to state 0. 
+				else //Otherwise we leave it at 0 
 				{
 					M[i][j][1][length + 1] = 0;
 				}
-				//Repeat for other input. 
+				//If state i transitions to j on a 0 then we add a 1 to q = -1
 				if(dfa[i][0] == j)
 				{
 					M[i][j][1][length - 1] = 1;
@@ -259,26 +262,6 @@ public class FinalProject {
 		{
 			System.out.println(printDFA(children.get(i), childAccepting.get(i)));
 		}
-		/*
-		for(int i = 0; i < accepting.length * 2; i ++)
-		{
-			childAccepting.add(new boolean[accepting.length]);
-			int numAccepting = (int)(Math.random() * accepting.length - 1);
-			if(numAccepting <= 0)
-			{
-				numAccepting = 1;
-			}
-			for(int j = 0; j < numAccepting; j++)
-			{
-				childAccepting.get(childAccepting.size() - 1)[(int)(Math.random() * accepting.length)] = true;			
-			}
-		}
-		
-		for(int i = 0; i < children.size(); i++)
-		{
-			System.out.println(printDFA(children.get(i), childAccepting.get(i)));
-		}
-		*/
 	}
 	
 	protected int[][] copy()
