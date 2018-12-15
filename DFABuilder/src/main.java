@@ -1,9 +1,16 @@
+import java.util.Scanner;
 
 public class main {
 	
 	public static void main(String [ ] args)
 	{
-		FinalProject f = new FinalProject(10, 20);
+		Scanner input = new Scanner(System.in);
+		System.out.println("Enter number of states for the DFA: ");
+		int size = input.nextInt();
+		System.out.println("Enter max length of the string: ");
+		int length = input.nextInt();
+		
+		FinalProject f = new FinalProject(size, length);
 		
 		f.run();
 		

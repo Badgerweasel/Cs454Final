@@ -88,7 +88,50 @@ public class DfaBuilder {
 		}
 	}
 	
-	public int max(int[] list)
+	public static int[][] findAndFixUnconnected(int[][] DFA)
+	{
+		int[] pointedAt = new int[DFA.length];
+		int[][] pointingTo = new int[DFA.length][DFA.length];
+		
+		for(int i = 0; i < DFA.length; i++)
+		{
+			for(int j = 0; j < DFA[i].length; j++)
+			{
+				pointedAt[DFA[i][j]]++;
+				pointingTo[DFA[i][j]][i]++;
+			}
+		}
+		
+		for(int i = 0; i < DFA.length; i++)
+		{
+			if(pointedAt[i] == 0)
+			{
+				int maxIndex = max(pointedAt);
+				for(int j = 0; j < pointingTo[maxIndex].length; j++)
+				{
+					if(pointingTo[maxIndex][j] != 0)
+					{
+						if(DFA[j][0] == maxIndex)
+						{
+							DFA[j][0] = i;
+						}
+						else
+						{
+							DFA[j][1] = i;	
+						}
+						pointedAt[i]++;
+						pointedAt[maxIndex]-= 1;
+						pointingTo[maxIndex][j] -= 1;
+						break;
+					}
+				}
+			}
+		}
+		
+		return DFA;
+	}
+	
+	public static int max(int[] list)
 	{
 		int max = 0;
 		int maxValue = 0;

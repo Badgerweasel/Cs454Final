@@ -12,7 +12,8 @@ public class FinalProject {
 	
 	FinalProject(int size, int length)
 	{
-		M = new int[size][size][length][2*length];
+
+		
 		
 		dfa = new int[size][2];
 		
@@ -20,8 +21,10 @@ public class FinalProject {
 		
 		dfa = temp.getDFA();
 		this.size = size;
-		this.length = length;
+		this.length = length + 1;
 		accepting = temp.getAccepting();
+		M = new int[size][size][this.length][2*this.length];
+
 		/*
 		dfa = new int[2][2]; //[number of states] [number of inputs]
 		dfa[0][0] = 0; //State 0, input 0, =0 so go to state 0.
@@ -33,8 +36,9 @@ public class FinalProject {
 		accepting[1] = false; //State 1 is not accepting. 
 		this.size = 2;
 		this.length = 3;
+	
+		M = new int[this.size][this.size][this.length][2*this.length + 1]; //[2 states: 0,1] [2 possible inputs: {0,1}] [???] [???]
 		*/
-		//M = new int[this.size][this.size][this.length][2*this.length]; //[2 states: 0,1] [2 possible inputs: {0,1}] [???] [???]
 	}
 	
 	public void run()
@@ -56,36 +60,31 @@ public class FinalProject {
 		}
 		System.out.println("--------------Mutation Complete, now running printDFA(dfa, accepting)-----------------");
 		System.out.println(printDFA(dfa, accepting));
+		System.out.println(score.toString() + " / " + GetNumberOfPermutations(length).toString());
 		System.out.println("Percent correct " + (score.floatValue()/(GetNumberOfPermutations(length)).floatValue()) * 100 + "%");
 		System.out.println("-------------Done running printDFA, program complete.----------------");
 	}
 	
 	protected void populateM()
 	{
+		M = new int[size][size][length][2*length + 1];
 		//States of M
 		for(int i = 0; i < M.length; i++)
 		{
 			//Possible inputs of M
 			for(int j = 0; j < M[i].length; j++)
 			{
-				M[i][j][1][length] = 0;
+				//M[i][j][1][length] = 0;
 				
 				//If state i transitions to j on a 1 then we add 1 to q = 1
 				if(dfa[i][1] == j)
 				{
 					M[i][j][1][length + 1] = 1;
 				}
-				else //Otherwise we leave it at 0 
-				{
-					M[i][j][1][length + 1] = 0;
-				}
 				//If state i transitions to j on a 0 then we add a 1 to q = -1
 				if(dfa[i][0] == j)
 				{
 					M[i][j][1][length - 1] = 1;
-				}
-				{
-					M[i][j][1][length - 1] = 0;
 				}
 				
 			}
@@ -99,9 +98,11 @@ public class FinalProject {
 			{
 				for(int p = 2; p < M[i][j].length; p++)
 				{
-					for(int q = M[i][j].length - p; q < M[i][j].length + p; q++)
+					//for(int q = M[i][j].length - p; q < M[i][j].length + p + 1; q++)
+					for(int q = 1; q < M[i][j][p].length - 1; q++)
 					{
-						M[i][j][p][q] = M[ dfa[i][0] ][j][p-1][q+1] + M[ dfa[i][1] ][j][p-1][q-1];
+						//System.out.println("M[i][j][p][q] +  = M[dfa[i][0]][j][p-1][q+1](" + M[dfa[i][0]][j][p-1][q+1] + ") + M[ dfa[i][1] ][j][p-1][q-1](" + M[ dfa[i][1] ][j][p-1][q-1] + ")");
+						M[i][j][p][q] = M[dfa[i][0]][j][p-1][q+1] + M[ dfa[i][1] ][j][p-1][q-1];
 					}
 				}
 			}
@@ -127,20 +128,19 @@ public class FinalProject {
 				//For each q value
 				for(int q = 0; q < M[0][j][k].length; q++)
 				{
-					if(accepting[j] && q > M[0][j].length) //Its a bit dangerous to run accepting[input] when accepting is based on States!
-																	//(it just so happens #states (0,1) = #inputs {0,1}
+					if(accepting[j] && q > M[0][j].length) 
 					{
 						field1 += M[0][j][k][q];
 					}
-					else if(!accepting[j] && q < M[0][j].length && q > 0)
+					else if(!accepting[j] && q < M[0][j].length && q >= 0)
 					{
 						field2 += M[0][j][k][q];
 					}
-					else if(accepting[j] && q == 0)
+					else if(accepting[j] && q == length)
 					{
 						field3 += M[dfa[0][1]][j][k][q];
 					}
-					else if(!accepting[j] && q == 0)
+					else if(!accepting[j] && q == length)
 					{
 						field4 += M[dfa[0][0]][j][k][q];
 					}
@@ -170,7 +170,10 @@ public class FinalProject {
 			{
 				children.add(copy());
 				children.get(children.size() - 1)[i][j] = (int)(Math.random() * dfa.length);
+				children.set(children.size() - 1, DfaBuilder.findAndFixUnconnected(children.get(children.size() - 1)));
 			}
+			
+			
 		}
 		//create accepting states
 		for(int j = 0; j < children.size(); j++) {
@@ -224,14 +227,7 @@ public class FinalProject {
 			}
 			else
 			{
-				childAccepting.add(new boolean[accepting.length]);
-				for(int i = 0; i < accepting.length; i++)
-				{
-					if(accepting[i])
-					{
-						childAccepting.get(childAccepting.size() - 1)[i] = true;
-					}
-				}
+				childAccepting.add(copyAccepting(accepting));
 			}
 			
 			
@@ -311,14 +307,12 @@ public class FinalProject {
 		//For each State, we print out its respective M
 		for(int i = 0; i < M.length; i++)
 		{
-			System.out.println("Current State: " + i);
 			
-			System.out.println("{");
+			System.out.print("{");
 			
 			//For each possible input.
 			for(int j = 0; j < M[i].length; j++)
 			{
-				System.out.println("Current Input: " + j);
 				
 				System.out.print("[");
 				
@@ -328,15 +322,15 @@ public class FinalProject {
 					System.out.print("(");
 					
 					//For each q val???
-					for(int q = 0; q < M[i][j].length * 2; q++)
+					for(int q = 0; q < M[i][j][p].length; q++)
 					{
 						System.out.print(M[i][j][p][q] + ", ");
 					}
 					System.out.print("), ");
 				}
-				System.out.print("],\n");
+				System.out.print("],");
 			}
-			System.out.println("}\n");
+			System.out.print("}\n");
 		}
 	}
 	
