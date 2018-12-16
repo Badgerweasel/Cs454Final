@@ -1,3 +1,10 @@
+
+/*
+ * CS 454 Final Project, Problem #3
+ * 
+ * Group Members: Sean Smith, Trenton Rackerby and Grant Young
+ */
+
 import java.util.Scanner;
 
 public class main {
